@@ -74,37 +74,48 @@ app.post('/incluir', upload.single('capa'), async (req, res) => {
 
 // Rota para buscar baralhos
 app.get('/buscar', async (req, res) => {
-  const searchTerm = req.query.q;
-  let baralhos = [];
-
-  const params = {
-    TableName: TABLE_NAME
-  };
-
-  try {
-    const data = await dynamoClient.scan(params).promise();
-    baralhos = data.Items;
-
-    if (searchTerm) {
-      baralhos = baralhos.filter(b =>
-        b.Titulo && b.Titulo.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    const searchTerm = req.query.q;
+    let baralhos = [];
+  
+    const params = {
+      TableName: TABLE_NAME
+    };
+  
+    try {
+      const data = await dynamoClient.scan(params).promise();
+      baralhos = data.Items;
+  
+      if (searchTerm) {
+        baralhos = baralhos.filter(b =>
+          b.Titulo && b.Titulo.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+  
+      // Gera URLs alternativas para as imagens
+      baralhos = baralhos.map(b => {
+        const imagemUrl = b.Imagem 
+          ? [
+              `https://${BUCKET_NAME}.s3.amazonaws.com/covers/${b.Imagem}`,
+              `https://${BUCKET_NAME}.s3.amazonaws.com/${b.Imagem}`
+            ]
+          : null;
+        
+        return {
+          ...b,
+          // Mantém ambas as URLs possíveis para verificação no frontend
+          ImagemUrls: imagemUrl,
+          // URL que será usada por padrão (será verificada no frontend)
+          ImagemUrl: imagemUrl ? imagemUrl[0] : null
+        };
+      });
+  
+      console.log("Baralhos encontrados:", baralhos);
+      res.render('buscar', { baralhos, searchTerm });
+    } catch (err) {
+      console.error('Erro ao buscar baralhos:', err);
+      res.render('buscar', { baralhos: [], searchTerm });
     }
-
-    // Gera URL das imagens
-    baralhos = baralhos.map(b => ({
-      ...b,
-      ImagemUrl: `https://${BUCKET_NAME}.s3.amazonaws.com/${b.Imagem}`
-    }));
-
-    console.log("Baralhos encontrados:", baralhos);
-
-    res.render('buscar', { baralhos, searchTerm });
-  } catch (err) {
-    console.error('Erro ao buscar baralhos:', err);
-    res.render('buscar', { baralhos: [], searchTerm });
-  }
-});
+  });
 
 // Inicia o servidor
 const PORT = process.env.PORT || 3000;

@@ -1,32 +1,35 @@
 <%- include('partials/header') %>
 
 <div class="search-container">
-
-    <!-- Container da barra de busca -->
-    <div class="search-bar-wrapper">
-        <div class="search-bar-container">
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Digite o título do baralho..." 
-                       value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>"
-                       aria-label="Campo de busca por título do baralho">
-                <button id="search-button" aria-label="Buscar baralhos">Buscar</button>
-            </div>
+    <!-- Barra de Busca Centralizada -->
+    <div class="search-bar-container">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Digite o título do baralho..." 
+                   value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>"
+                   aria-label="Campo de busca por título do baralho">
+            <button id="search-button" aria-label="Buscar baralhos">Buscar</button>
         </div>
     </div>
 
-    <!-- Container do carrossel -->
-    <div class="carrossel-wrapper-container">
-        <h3 class="carrossel-title">Baralhos Disponíveis</h3>
+    <!-- Carrossel de Baralhos -->
+    <div class="carrossel-outer-container">
+        <h3 class="carrossel-main-title">Baralhos Disponíveis</h3>
         <div class="carrossel-container">
             <button class="carrossel-btn prev" aria-label="Baralhos anteriores">❮</button>
+            
             <div class="carrossel-wrapper">
                 <div class="carrossel">
                     <% if (typeof baralhos !== 'undefined' && baralhos.length > 0) { %>
                         <% baralhos.forEach(baralho => { %>
                             <div class="carrossel-card" tabindex="0">
-                                <% if (baralho.CapaURL) { %>
-                                    <img src="<%= baralho.CapaURL %>" alt="Capa do baralho <%= baralho.Titulo %>" 
-                                         class="carrossel-image" loading="lazy">
+                                <% if (baralho.ImagemUrls) { %>
+                                    <img src="" 
+                                         data-src-covers="<%= baralho.ImagemUrls[0] %>" 
+                                         data-src-root="<%= baralho.ImagemUrls[1] %>" 
+                                         alt="Capa do baralho <%= baralho.Titulo %>" 
+                                         class="carrossel-image" 
+                                         loading="lazy"
+                                         onerror="handleImageError(this)">
                                 <% } else { %>
                                     <div class="carrossel-image-placeholder">
                                         <span>Sem Imagem</span>
@@ -40,104 +43,44 @@
                     <% } %>
                 </div>
             </div>
+            
             <button class="carrossel-btn next" aria-label="Próximos baralhos">❯</button>
         </div>
     </div>
-
 </div>
 
 <script>
-    // Busca
-    document.getElementById('search-button').addEventListener('click', () => {
-        const searchTerm = document.getElementById('search-input').value.trim();
-        if (searchTerm) {
-            window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
+    // Função para tratamento de erro de imagem
+    function handleImageError(img) {
+        if (img.src !== img.dataset.srcRoot) {
+            // Tenta carregar da raiz se a pasta covers falhar
+            img.src = img.dataset.srcRoot;
         } else {
-            window.location.href = '/buscar';
+            // Se ambas falharem, mostra placeholder
+            const placeholder = document.createElement('div');
+            placeholder.className = 'carrossel-image-placeholder';
+            placeholder.innerHTML = '<span>Sem Imagem</span>';
+            img.replaceWith(placeholder);
         }
-    });
-
-    document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            document.getElementById('search-button').click();
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const carrossel = document.querySelector('.carrossel');
-    const cards = document.querySelectorAll('.carrossel-card');
-    const btnPrev = document.querySelector('.prev');
-    const btnNext = document.querySelector('.next');
-
-    if (cards.length > 0) {
-        let currentIndex = 0;
-
-        function getCardWidth() {
-            const style = window.getComputedStyle(cards[0]);
-            const marginRight = parseFloat(style.marginRight) || 0;
-            return cards[0].offsetWidth + marginRight;
-        }
-
-        function updateCarrossel() {
-            const cardWidth = getCardWidth();
-            carrossel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-            const visibleCards = Math.floor(carrossel.parentElement.offsetWidth / cardWidth);
-
-            btnPrev.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
-            btnNext.style.visibility = currentIndex >= cards.length - visibleCards ? 'hidden' : 'visible';
-        }
-
-        function handleResize() {
-            updateCarrossel();
-        }
-
-        btnNext.addEventListener('click', () => {
-            const cardWidth = getCardWidth();
-            const visibleCards = Math.floor(carrossel.parentElement.offsetWidth / cardWidth);
-            if (currentIndex < cards.length - visibleCards) {
-                currentIndex++;
-                updateCarrossel();
-            }
-        });
-
-        btnPrev.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCarrossel();
-            }
-        });
-
-        // Touch events para mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        carrossel.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        carrossel.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            if (diff > 50) btnNext.click();
-            if (diff < -50) btnPrev.click();
-        }, { passive: true });
-
-        updateCarrossel();
-        window.addEventListener('resize', handleResize);
     }
-});
-    document.addEventListener('DOMContentLoaded', () => {
 
+    // Carrega imagens verificando os paths alternativos
+    document.addEventListener('DOMContentLoaded', () => {
+        // Primeiro carrega todas as imagens da pasta covers
+        const images = document.querySelectorAll('.carrossel-image[data-src-covers]');
+        images.forEach(img => {
+            img.src = img.dataset.srcCovers;
+        });
+
+        // Configuração do Carrossel
         const carrossel = document.querySelector('.carrossel');
         const cards = document.querySelectorAll('.carrossel-card');
         const btnPrev = document.querySelector('.prev');
         const btnNext = document.querySelector('.next');
-
+        
         if (cards.length > 0) {
             let currentIndex = 0;
-            const cardStyle = window.getComputedStyle(cards[0]);
-            const cardMargin = parseFloat(cardStyle.marginRight);
-            let cardWidth = cards[0].offsetWidth + cardMargin;
+            const cardWidth = cards[0].offsetWidth + 20; // Inclui margin
 
             function updateCarrossel() {
                 carrossel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
@@ -146,9 +89,8 @@
             }
 
             function handleResize() {
-                const newCardWidth = cards[0].offsetWidth + cardMargin;
+                const newCardWidth = cards[0].offsetWidth + 20;
                 if (Math.abs(newCardWidth - cardWidth) > 5) {
-                    cardWidth = newCardWidth;
                     updateCarrossel();
                 }
             }
@@ -168,15 +110,14 @@
                 }
             });
 
+            // Touch events para mobile
             let touchStartX = 0;
-            let touchEndX = 0;
-
             carrossel.addEventListener('touchstart', (e) => {
                 touchStartX = e.changedTouches[0].screenX;
             }, { passive: true });
 
             carrossel.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
+                const touchEndX = e.changedTouches[0].screenX;
                 const diff = touchStartX - touchEndX;
                 if (diff > 50) btnNext.click();
                 if (diff < -50) btnPrev.click();
@@ -184,6 +125,22 @@
 
             updateCarrossel();
             window.addEventListener('resize', handleResize);
+        }
+    });
+
+    // Busca
+    document.getElementById('search-button').addEventListener('click', () => {
+        const searchTerm = document.getElementById('search-input').value.trim();
+        if (searchTerm) {
+            window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
+        } else {
+            window.location.href = '/buscar';
+        }
+    });
+
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('search-button').click();
         }
     });
 </script>
