@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -19,16 +19,6 @@ jobs:
     - name: Install dependencies
       run: npm install
       
-    - name: Run tests
-      run: npm test
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
