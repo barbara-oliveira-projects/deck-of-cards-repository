@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>Bem-vindo ao site dos baralhos</h1>
+                <h1>Bem-vindo ao site dos baralhos!</h1>
                 <p>Este site está hospedado na AWS EC2.</p>
             </div>
         </body>
