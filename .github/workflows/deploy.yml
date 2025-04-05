@@ -26,20 +26,20 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /home/deploy
-          
-          # Clona o repositório se não existir
+          cd /home/ec2-user
+
+          # Se o repositório ainda não existir, clona
           if [ ! -d "deck-of-cards-repository" ]; then
             git clone https://github.com/barbara-oliveira-projects/deck-of-cards-repository.git
           fi
 
           cd deck-of-cards-repository
 
-          # Puxa últimas alterações
+          # Atualiza com as últimas mudanças
           git pull origin main
 
-          # Instala dependências sem as dev
+          # Instala dependências (sem dev)
           npm install --omit=dev
 
-          # Reinicia com PM2
+          # Reinicia app com PM2 ou inicia se não estiver rodando
           pm2 restart all || pm2 start npm --name "deck-app" -- start
