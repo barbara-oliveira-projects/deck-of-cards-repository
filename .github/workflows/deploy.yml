@@ -28,18 +28,29 @@ jobs:
         script: |
           cd /home/ec2-user
 
-          # Se o repositório ainda não existir, clona
+          # Clona o repositório se ainda não existir
           if [ ! -d "deck-of-cards-repository" ]; then
             git clone https://github.com/barbara-oliveira-projects/deck-of-cards-repository.git
           fi
 
           cd deck-of-cards-repository
 
-          # Atualiza com as últimas mudanças
+          # Puxa a última versão do main
           git pull origin main
 
-          # Instala dependências (sem dev)
+          # Instala dependências de produção
           npm install --omit=dev
 
-          # Reinicia app com PM2 ou inicia se não estiver rodando
+          # Garante que o PM2 esteja instalado
+          if ! command -v pm2 &> /dev/null; then
+            sudo npm install -g pm2
+          fi
+
+          # Inicia ou reinicia a aplicação
           pm2 restart app || pm2 start npm --name "app" -- start
+
+          # Salva o estado atual dos processos do PM2
+          pm2 save
+
+          # Configura PM2 para iniciar com o sistema (isso precisa ser executado manualmente uma vez):
+          # sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ec2-user --hp /home/ec2-user
