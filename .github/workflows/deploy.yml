@@ -26,7 +26,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /caminho/para/seu/projeto
+          cd /home/ec2-user/deck-of-cards-repository
           git pull origin main
           npm install --production
           pm2 restart all
