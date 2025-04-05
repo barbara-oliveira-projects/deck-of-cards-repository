@@ -1,68 +1,161 @@
 <%- include('partials/header') %>
-    <div class="search-container">
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Digite o título do baralho..." 
-                   value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
-            <button id="search-button">Buscar</button>
-        </div>
 
-        <!-- Carrossel de Baralhos -->
-        <div class="carrossel-container">
-            <h3>Baralhos Disponíveis</h3>
-            <div class="carrossel">
-                <% if (typeof baralhos !== 'undefined' && baralhos.length > 0) { %>
-                    <% baralhos.forEach(baralho => { %>
-                        <div class="carrossel-card">
-                            <% if (baralho.CapaURL) { %>
-                                <img src="<%= baralho.CapaURL %>" alt="<%= baralho.Titulo %>" class="carrossel-image">
-                            <% } else { %>
-                                <div class="carrossel-image-placeholder">
-                                    <span>Sem Imagem</span>
-                                </div>
-                            <% } %>
-                            <div class="carrossel-title"><%= baralho.Titulo %></div>
-                        </div>
-                    <% }); %>
-                <% } else { %>
-                    <p class="no-results">Nenhum baralho encontrado.</p>
-                <% } %>
+<div class="search-container">
+
+    <!-- Container da barra de busca -->
+    <div class="search-bar-wrapper">
+        <div class="search-bar-container">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Digite o título do baralho..." 
+                       value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>"
+                       aria-label="Campo de busca por título do baralho">
+                <button id="search-button" aria-label="Buscar baralhos">Buscar</button>
             </div>
-            <button class="carrossel-btn prev">❮</button>
-            <button class="carrossel-btn next">❯</button>
         </div>
     </div>
 
-    <script>
-        // Busca
-        document.getElementById('search-button').addEventListener('click', () => {
-            const searchTerm = document.getElementById('search-input').value.trim();
-            if (searchTerm) {
-                window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
-            } else {
-                window.location.href = '/buscar';
+    <!-- Container do carrossel -->
+    <div class="carrossel-wrapper-container">
+        <h3 class="carrossel-title">Baralhos Disponíveis</h3>
+        <div class="carrossel-container">
+            <button class="carrossel-btn prev" aria-label="Baralhos anteriores">❮</button>
+            <div class="carrossel-wrapper">
+                <div class="carrossel">
+                    <% if (typeof baralhos !== 'undefined' && baralhos.length > 0) { %>
+                        <% baralhos.forEach(baralho => { %>
+                            <div class="carrossel-card" tabindex="0">
+                                <% if (baralho.CapaURL) { %>
+                                    <img src="<%= baralho.CapaURL %>" alt="Capa do baralho <%= baralho.Titulo %>" 
+                                         class="carrossel-image" loading="lazy">
+                                <% } else { %>
+                                    <div class="carrossel-image-placeholder">
+                                        <span>Sem Imagem</span>
+                                    </div>
+                                <% } %>
+                                <div class="carrossel-card-title"><%= baralho.Titulo %></div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="no-results">Nenhum baralho encontrado.</p>
+                    <% } %>
+                </div>
+            </div>
+            <button class="carrossel-btn next" aria-label="Próximos baralhos">❯</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Busca
+    document.getElementById('search-button').addEventListener('click', () => {
+        const searchTerm = document.getElementById('search-input').value.trim();
+        if (searchTerm) {
+            window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
+        } else {
+            window.location.href = '/buscar';
+        }
+    });
+
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('search-button').click();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const carrossel = document.querySelector('.carrossel');
+    const cards = document.querySelectorAll('.carrossel-card');
+    const btnPrev = document.querySelector('.prev');
+    const btnNext = document.querySelector('.next');
+
+    if (cards.length > 0) {
+        let currentIndex = 0;
+
+        function getCardWidth() {
+            const style = window.getComputedStyle(cards[0]);
+            const marginRight = parseFloat(style.marginRight) || 0;
+            return cards[0].offsetWidth + marginRight;
+        }
+
+        function updateCarrossel() {
+            const cardWidth = getCardWidth();
+            carrossel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            const visibleCards = Math.floor(carrossel.parentElement.offsetWidth / cardWidth);
+
+            btnPrev.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+            btnNext.style.visibility = currentIndex >= cards.length - visibleCards ? 'hidden' : 'visible';
+        }
+
+        function handleResize() {
+            updateCarrossel();
+        }
+
+        btnNext.addEventListener('click', () => {
+            const cardWidth = getCardWidth();
+            const visibleCards = Math.floor(carrossel.parentElement.offsetWidth / cardWidth);
+            if (currentIndex < cards.length - visibleCards) {
+                currentIndex++;
+                updateCarrossel();
             }
         });
 
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('search-button').click();
+        btnPrev.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarrossel();
+            }
         });
 
-        // Carrossel
-        document.addEventListener('DOMContentLoaded', () => {
-            const carrossel = document.querySelector('.carrossel');
-            const cards = document.querySelectorAll('.carrossel-card');
-            const btnPrev = document.querySelector('.prev');
-            const btnNext = document.querySelector('.next');
-            
+        // Touch events para mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        carrossel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        carrossel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (diff > 50) btnNext.click();
+            if (diff < -50) btnPrev.click();
+        }, { passive: true });
+
+        updateCarrossel();
+        window.addEventListener('resize', handleResize);
+    }
+});
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const carrossel = document.querySelector('.carrossel');
+        const cards = document.querySelectorAll('.carrossel-card');
+        const btnPrev = document.querySelector('.prev');
+        const btnNext = document.querySelector('.next');
+
+        if (cards.length > 0) {
             let currentIndex = 0;
-            const cardWidth = cards.length > 0 ? cards[0].offsetWidth + 20 : 0; // +20 para margin
+            const cardStyle = window.getComputedStyle(cards[0]);
+            const cardMargin = parseFloat(cardStyle.marginRight);
+            let cardWidth = cards[0].offsetWidth + cardMargin;
 
             function updateCarrossel() {
                 carrossel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+                btnPrev.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+                btnNext.style.visibility = currentIndex >= cards.length - Math.floor(carrossel.parentElement.offsetWidth / cardWidth) ? 'hidden' : 'visible';
+            }
+
+            function handleResize() {
+                const newCardWidth = cards[0].offsetWidth + cardMargin;
+                if (Math.abs(newCardWidth - cardWidth) > 5) {
+                    cardWidth = newCardWidth;
+                    updateCarrossel();
+                }
             }
 
             btnNext.addEventListener('click', () => {
-                if (currentIndex < cards.length - 1) {
+                const visibleCards = Math.floor(carrossel.parentElement.offsetWidth / cardWidth);
+                if (currentIndex < cards.length - visibleCards) {
                     currentIndex++;
                     updateCarrossel();
                 }
@@ -74,6 +167,25 @@
                     updateCarrossel();
                 }
             });
-        });
-    </script>
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            carrossel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            carrossel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const diff = touchStartX - touchEndX;
+                if (diff > 50) btnNext.click();
+                if (diff < -50) btnPrev.click();
+            }, { passive: true });
+
+            updateCarrossel();
+            window.addEventListener('resize', handleResize);
+        }
+    });
+</script>
+
 <%- include('partials/footer') %>
