@@ -1,4 +1,79 @@
 <%- include('partials/header') %>
-    <h2>Buscar Baralho</h2>
-    <!-- Conteúdo futuro aqui -->
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Digite o título do baralho..." 
+                   value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+            <button id="search-button">Buscar</button>
+        </div>
+
+        <!-- Carrossel de Baralhos -->
+        <div class="carrossel-container">
+            <h3>Baralhos Disponíveis</h3>
+            <div class="carrossel">
+                <% if (typeof baralhos !== 'undefined' && baralhos.length > 0) { %>
+                    <% baralhos.forEach(baralho => { %>
+                        <div class="carrossel-card">
+                            <% if (baralho.CapaURL) { %>
+                                <img src="<%= baralho.CapaURL %>" alt="<%= baralho.Titulo %>" class="carrossel-image">
+                            <% } else { %>
+                                <div class="carrossel-image-placeholder">
+                                    <span>Sem Imagem</span>
+                                </div>
+                            <% } %>
+                            <div class="carrossel-title"><%= baralho.Titulo %></div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="no-results">Nenhum baralho encontrado.</p>
+                <% } %>
+            </div>
+            <button class="carrossel-btn prev">❮</button>
+            <button class="carrossel-btn next">❯</button>
+        </div>
+    </div>
+
+    <script>
+        // Busca
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            if (searchTerm) {
+                window.location.href = `/buscar?q=${encodeURIComponent(searchTerm)}`;
+            } else {
+                window.location.href = '/buscar';
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('search-button').click();
+        });
+
+        // Carrossel
+        document.addEventListener('DOMContentLoaded', () => {
+            const carrossel = document.querySelector('.carrossel');
+            const cards = document.querySelectorAll('.carrossel-card');
+            const btnPrev = document.querySelector('.prev');
+            const btnNext = document.querySelector('.next');
+            
+            let currentIndex = 0;
+            const cardWidth = cards.length > 0 ? cards[0].offsetWidth + 20 : 0; // +20 para margin
+
+            function updateCarrossel() {
+                carrossel.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            }
+
+            btnNext.addEventListener('click', () => {
+                if (currentIndex < cards.length - 1) {
+                    currentIndex++;
+                    updateCarrossel();
+                }
+            });
+
+            btnPrev.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarrossel();
+                }
+            });
+        });
+    </script>
 <%- include('partials/footer') %>
