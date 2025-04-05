@@ -21,6 +21,19 @@
     padding: 1rem;
   }
   
+  /* Título clicável */
+  .header-title {
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: opacity 0.3s;
+  }
+  
+  .header-title:hover {
+    opacity: 0.9;
+    text-decoration: underline;
+  }
+  
   main {
     flex: 1;
     display: flex;
@@ -60,14 +73,9 @@
     background-color: #2980b9;
   }
   
-  /* Media Query para mobile (opcional) */
+  /* Media Query para mobile */
   @media (max-width: 480px) {
     main {
       padding: 1rem;
     }
-  
-    .button-container {
-      padding: 0 1rem;
-    }
   }
-  
