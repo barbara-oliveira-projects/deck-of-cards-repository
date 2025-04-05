@@ -117,6 +117,31 @@ app.get('/buscar', async (req, res) => {
     }
   });
 
+app.get('/baralho/:id', async (req, res) => {
+    try {
+        const params = {
+            TableName: TABLE_NAME,
+            Key: {
+                BaralhoID: req.params.id
+            }
+        };
+        
+        const data = await dynamoClient.get(params).promise();
+        
+        if (data.Item) {
+            res.render('baralho', { 
+                baralho: data.Item,
+                BUCKET_NAME: process.env.S3_BUCKET
+            });
+        } else {
+            res.status(404).send('Baralho não encontrado');
+        }
+    } catch (err) {
+        console.error('Erro ao buscar baralho:', err);
+        res.status(500).send('Erro ao buscar baralho');
+    }
+});  
+
 // Inicia o servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

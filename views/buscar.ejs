@@ -21,7 +21,7 @@
                 <div class="carrossel">
                     <% if (typeof baralhos !== 'undefined' && baralhos.length > 0) { %>
                         <% baralhos.forEach(baralho => { %>
-                            <div class="carrossel-card" tabindex="0">
+                            <div class="carrossel-card" tabindex="0" data-id="<%= baralho.BaralhoID %>">
                                 <% if (baralho.ImagemUrls) { %>
                                     <img src="" 
                                          data-src-covers="<%= baralho.ImagemUrls[0] %>" 
@@ -123,6 +123,18 @@
                 if (diff < -50) btnPrev.click();
             }, { passive: true });
 
+            // Adiciona cursor pointer e efeito hover nos cards
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'scale(1.02)';
+                    card.style.transition = 'transform 0.2s ease';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'scale(1)';
+                });
+            });
+
             updateCarrossel();
             window.addEventListener('resize', handleResize);
         }
@@ -142,6 +154,27 @@
         if (e.key === 'Enter') {
             document.getElementById('search-button').click();
         }
+    });
+
+    // Adiciona evento de clique aos cards do carrossel
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.carrossel-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Evita que o clique na imagem propague para o card se necessário
+                if (e.target.classList.contains('carrossel-image')) {
+                    e.stopPropagation();
+                    return;
+                }
+                
+                const baralhoId = card.getAttribute('data-id');
+                if (baralhoId) {
+                    // Redireciona para uma nova página com o ID do baralho
+                    window.location.href = `/baralho/${baralhoId}`;
+                }
+            });
+        });
     });
 </script>
 
