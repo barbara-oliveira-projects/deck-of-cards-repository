@@ -7,18 +7,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        
-    - name: Install dependencies
+
+    - name: Install dependencies (CI side)
       run: npm install
-      
+
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
@@ -26,7 +26,20 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /home/ec2-user/deck-of-cards-repository
+          cd /home/deploy
+          
+          # Clona o repositório se não existir
+          if [ ! -d "deck-of-cards-repository" ]; then
+            git clone https://github.com/SEU_USUARIO_GITHUB/deck-of-cards-repository.git
+          fi
+
+          cd deck-of-cards-repository
+
+          # Puxa últimas alterações
           git pull origin main
-          npm install --production
-          pm2 restart all
+
+          # Instala dependências sem as dev
+          npm install --omit=dev
+
+          # Reinicia com PM2
+          pm2 restart all || pm2 start npm --name "deck-app" -- start
