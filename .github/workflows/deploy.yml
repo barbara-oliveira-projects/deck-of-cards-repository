@@ -42,4 +42,4 @@ jobs:
           npm install --omit=dev
 
           # Reinicia app com PM2 ou inicia se não estiver rodando
-          pm2 restart all || pm2 start npm --name "deck-app" -- start
+          pm2 restart app || pm2 start npm --name "app" -- start
