@@ -10,6 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^5.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barbara-oliveira-projects/deck-of-cards-repository.git"
+  },
+  "bugs": {
+    "url": "https://github.com/barbara-oliveira-projects/deck-of-cards-repository/issues"
+  },
+  "homepage": "https://github.com/barbara-oliveira-projects/deck-of-cards-repository#readme"
 }

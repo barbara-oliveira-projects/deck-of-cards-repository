@@ -1,43 +1,18 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const path = require('path');
 
-// Rota para a página inicial
-app.get('/', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="pt-br">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Meu Site Node.js</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    text-align: center;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f0f0f0;
-                }
-                .container {
-                    margin-top: 100px;
-                }
-                h1 {
-                    color: #333;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Bem-vindo ao site dos testes!</h1>
-                <p>Este site está hospedado na AWS EC2.</p>
-            </div>
-        </body>
-        </html>
-    `);
-});
+// Configuração do EJS e arquivos estáticos
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Rotas
+app.get('/', (req, res) => res.render('index'));
+app.get('/buscar', (req, res) => res.render('buscar'));
+app.get('/incluir', (req, res) => res.render('incluir'));
+app.get('/atualizar', (req, res) => res.render('atualizar'));
 
 // Inicia o servidor
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
