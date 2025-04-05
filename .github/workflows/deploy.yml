@@ -30,7 +30,7 @@ jobs:
           
           # Clona o repositório se não existir
           if [ ! -d "deck-of-cards-repository" ]; then
-            git clone https://github.com/SEU_USUARIO_GITHUB/deck-of-cards-repository.git
+            git clone https://github.com/barbara-oliveira-projects/deck-of-cards-repository.git
           fi
 
           cd deck-of-cards-repository
