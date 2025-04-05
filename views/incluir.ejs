@@ -1,4 +1,41 @@
 <%- include('partials/header') %>
-  <h2>Incluir Baralho</h2>
-  <!-- Conteúdo futuro aqui -->
+    <div class="form-container">
+        <h2>Incluir Novo Baralho</h2>
+        <form action="/incluir" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="titulo">Título</label>
+                <input type="text" id="titulo" name="titulo" required class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="capa">Capa do Baralho</label>
+                <input type="file" id="capa" name="capa" accept="image/*" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label>Textos</label>
+                <div id="textos-container">
+                    <div class="texto-item">
+                        <textarea name="textos[]" class="form-textarea" required></textarea>
+                        <button type="button" class="btn-add" onclick="adicionarTexto()">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Salvar Baralho</button>
+        </form>
+    </div>
+
+    <script>
+        function adicionarTexto() {
+            const container = document.getElementById('textos-container');
+            const novoTexto = document.createElement('div');
+            novoTexto.className = 'texto-item';
+            novoTexto.innerHTML = `
+                <textarea name="textos[]" class="form-textarea"></textarea>
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(novoTexto);
+        }
+    </script>
 <%- include('partials/footer') %>
