@@ -1,0 +1,9 @@
+<%- include('partials/header') %>
+  <div class="error-container">
+    <h2>Erro: <%= mensagem %></h2>
+    <% if (erro) { %>
+      <pre class="error-details"><%= erro %></pre>
+    <% } %>
+    <a href="/" class="btn">Voltar à página inicial</a>
+  </div>
+<%- include('partials/footer') %>
