@@ -1,17 +1,33 @@
 <%- include('partials/header') %>
 
-<div class="container">
-    <% if (baralho) { %>
-        <h1><%= baralho.Titulo %></h1>
-        <% if (baralho.Imagem) { %>
-            <img src="https://<%= BUCKET_NAME %>.s3.amazonaws.com/<%= baralho.Imagem %>" 
-                 alt="<%= baralho.Titulo %>" 
-                 style="max-width: 300px;">
-        <% } %>
-        <p><%= baralho.Descricao %></p>
+<main>
+  <div class="deck-detail-container">
+    <!-- TÍTULO -->
+    <h1 class="deck-title"><%= baralho.Titulo %></h1>
+    
+    <!-- IMAGEM -->
+    <% if (baralho.Imagem) { %>
+      <div class="deck-image-wrapper">
+        <img 
+          src="https://<%= BUCKET_NAME %>.s3.amazonaws.com/<%= baralho.Imagem %>" 
+          alt="Imagem do Baralho" 
+          class="deck-image-center"
+        >
+      </div>
     <% } else { %>
-        <p>Baralho não encontrado</p>
+      <div class="deck-image-placeholder">Sem imagem</div>
     <% } %>
-</div>
+
+    <!-- DESCRIÇÃO ESCONDIDA -->
+    <div class="deck-description" id="deck-description" style="display: none;">
+      <p><%= baralho.Descricao %></p>
+    </div>
+
+    <!-- BOTÃO -->
+    <button onclick="document.getElementById('deck-description').style.display='block'" class="btn-show-description">
+      Mostrar Cartas
+    </button>
+  </div>
+</main>
 
 <%- include('partials/footer') %>

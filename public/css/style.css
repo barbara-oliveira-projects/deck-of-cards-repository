@@ -454,3 +454,53 @@ main {
       width: 100%;
     }
   }
+  .deck-detail-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+    text-align: center;
+}
+
+.deck-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.deck-image-wrapper {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.deck-image-center {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.deck-description {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: #444;
+    text-align: left;
+}
+
+.btn-show-description {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-show-description:hover {
+    background-color: #2980b9;
+}
