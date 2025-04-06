@@ -2,31 +2,25 @@
 
 <main>
   <div class="deck-detail-container">
-    <!-- TÍTULO -->
     <h1 class="deck-title"><%= baralho.Titulo %></h1>
-    
-    <!-- IMAGEM -->
-    <% if (baralho.Imagem) { %>
-      <div class="deck-image-wrapper">
-        <img 
-          src="https://<%= BUCKET_NAME %>.s3.amazonaws.com/<%= baralho.Imagem %>" 
-          alt="Imagem do Baralho" 
-          class="deck-image-center"
-        >
+
+    <div class="card-container" onclick="this.classList.toggle('flipped')">
+      <div class="card-inner">
+        <!-- FRENTE -->
+        <div class="card-front">
+          <img 
+            src="https://<%= BUCKET_NAME %>.s3.amazonaws.com/<%= baralho.Imagem %>" 
+            alt="Imagem do Baralho" 
+            class="deck-card-image"
+          >
+        </div>
+
+        <!-- VERSO -->
+        <div class="card-back">
+          <p><%= baralho.Descricao %></p>
+        </div>
       </div>
-    <% } else { %>
-      <div class="deck-image-placeholder">Sem imagem</div>
-    <% } %>
-
-    <!-- DESCRIÇÃO ESCONDIDA -->
-    <div class="deck-description" id="deck-description" style="display: none;">
-      <p><%= baralho.Descricao %></p>
     </div>
-
-    <!-- BOTÃO -->
-    <button onclick="document.getElementById('deck-description').style.display='block'" class="btn-show-description">
-      Mostrar Cartas
-    </button>
   </div>
 </main>
 
