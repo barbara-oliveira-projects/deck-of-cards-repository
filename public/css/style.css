@@ -554,4 +554,21 @@ main {
     text-align: center;
     padding: 1.5rem;
   }
+  .back-button-container {
+    margin-bottom: 1rem;
+  }
   
+  .back-button {
+    text-decoration: none;
+    color: #333;
+    background-color: #f2f2f2;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .back-button:hover {
+    background-color: #ddd;
+  }
+    
